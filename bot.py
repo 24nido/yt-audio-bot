@@ -1,16 +1,17 @@
-processing_users = set()
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
-import yt_dlp
+import threading
 import os
 import glob
 import asyncio
 import ffmpeg
+import yt_dlp
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
-import os
+# Environment variable for bot token
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
-
+# Function to get the duration of the audio
 def get_audio_duration(filename):
     try:
         info = ffmpeg.probe(filename, select_streams='a:0', show_entries='stream=duration', v='error')
@@ -18,9 +19,11 @@ def get_audio_duration(filename):
     except:
         return None
 
+# Start command handler
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🎧 𝑺𝒆𝒏𝒅 𝒎𝒆 𝒂 𝒀𝒐𝒖𝑻𝒖𝒃𝒆 𝒍𝒊𝒏𝒌 𝒕𝒐 𝒈𝒆𝒕 𝒕𝒉𝒆 𝒂𝒖𝒅𝒊𝒐!")
 
+# Handle message and process the YouTube link
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     url = update.message.text
     if "youtube.com" not in url and "youtu.be" not in url:
@@ -68,6 +71,23 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         await update.message.reply_text(f"Error: {str(e)}")
 
+# Web server handler to keep the service running
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'Telegram bot is running.')
+
+# Function to run web server
+def run_web_server():
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(('', port), Handler)
+    server.serve_forever()
+
+# Start the web server in a separate thread
+threading.Thread(target=run_web_server).start()
+
+# Main function to set up the bot
 if __name__ == '__main__':
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
@@ -75,21 +95,4 @@ if __name__ == '__main__':
 
     print("Bot is running...")
     app.run_polling()
-
-    # Dummy web server for Render port binding
-import threading
-from http.server import BaseHTTPRequestHandler, HTTPServer
-
-class Handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b'Telegram bot is running.')
-
-def run_web_server():
-    port = int(os.environ.get("PORT", 10000))
-    server = HTTPServer(('', port), Handler)
-    server.serve_forever()
-
-threading.Thread(target=run_web_server).start()
 
