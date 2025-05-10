@@ -47,9 +47,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             }],
             'noplaylist': True,
             'quiet': False,
+            'geo_bypass': True,  # 👈 ye line add karni hai
             'forceipv4': True,
             'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
+        
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
