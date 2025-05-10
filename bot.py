@@ -30,6 +30,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("𝑷𝒍𝒆𝒂𝒔𝒆 𝒔𝒆𝒏𝒅 𝒂 𝒗𝒂𝒍𝒊𝒅 𝒀𝒐𝒖𝑻𝒖𝒃𝒆 𝑼𝑹𝑳.")
         return
 
+    # Convert Shorts link to standard format
+    if "youtube.com/shorts" in url:
+        video_id = url.split("/")[-1].split("?")[0]
+        url = f"https://www.youtube.com/watch?v={video_id}"
+
     await update.message.reply_text("𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅𝒊𝒏𝒈 𝒉𝒊𝒈𝒉-𝒒𝒖𝒂𝒍𝒊𝒕𝒚 𝒂𝒖𝒅𝒊𝒐... 𝑷𝒍𝒆𝒂𝒔𝒆 𝒘𝒂𝒊𝒕.")
     try:
         ydl_opts = {
@@ -42,6 +47,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             }],
             'noplaylist': True,
             'quiet': False,
+            'forceipv4': True,
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -64,7 +71,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             # Delete file
             os.remove(mp3_files[0])
-
         else:
             await update.message.reply_text("❌ 𝘾𝙤𝙪𝙡𝙙 𝙣𝙤𝙩 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙖𝙪𝙙𝙞𝙤. 𝙏𝙧𝙮 𝙖𝙜𝙖𝙞𝙣 𝙡𝙖𝙩𝙚𝙧.")
 
@@ -95,4 +101,3 @@ if __name__ == '__main__':
 
     print("Bot is running...")
     app.run_polling()
-
