@@ -45,6 +45,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 'preferredcodec': 'mp3',
                 'preferredquality': '128',
             }],
+            'cookies': 'C:/Users/YourUsername/Desktop/cookies.txt',  # Replace with your path
             'noplaylist': True,
             'quiet': False,
             'geo_bypass': True,  # 👈 ye line add karni hai
